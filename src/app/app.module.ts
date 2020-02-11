@@ -23,7 +23,7 @@ const appRoutes: Routes = [
     AppRoutingModule,
     RouterModule.forRoot(
       appRoutes,
-      { enableTracing: true}
+      { enableTracing: true, useHash: true}
     )
   ],
   providers: [],
