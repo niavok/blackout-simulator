@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { CsvReader, CsvFormat } from "./tools/csv-reader"
+
 @Component({
   selector: 'app-simulator',
   templateUrl: './simulator.component.html',
@@ -34,6 +36,8 @@ export class SimulatorComponent implements OnInit {
     domain: ['#5AA454', '#E44D25', '#CFC0BB', '#7aa3e5', '#a8385d', '#aae3f5']
   };
 
+  actualProductionCsvReader: CsvReader;
+
   constructor() {
     console.log("constructor");
     //Object.assign(this, { multi });
@@ -46,6 +50,8 @@ export class SimulatorComponent implements OnInit {
     ];
     console.log("constructor this.multi: "+ this.multi);
     this.plop = 12;
+    this.actualProductionCsvReader = new CsvReader(this.onActualProductionCsvLoaded);
+
   }
 
   ngOnInit(): void {
@@ -66,6 +72,15 @@ export class SimulatorComponent implements OnInit {
 
   onDeactivate(data): void {
     console.log('Deactivate', JSON.parse(JSON.stringify(data)));
+  }
+
+
+  onActualProductionCsvLoaded(csv : {}) : void
+  {
+    console.log("onActualProductionCsvLoaded");
+    console.log("header: "+csv["header"]);
+    console.log("data: "+csv["data"]);
+
   }
 
   parsedCsv: string[][];
@@ -160,25 +175,12 @@ export class SimulatorComponent implements OnInit {
 
 }
 
+
+
   onFileSelect(input: HTMLInputElement) {
     console.log("onFileSelect this.multi: "+ this.multi + " "+ this.plop);
+    this.actualProductionCsvReader.ReadFromFile(input, CsvFormat.ENTSOE);
 
-    const files = input.files;
-    var content = this.csvContent;
-    if (files && files.length) {
-        console.log("Filename: " + files[0].name);
-        console.log("Type: " + files[0].type);
-        console.log("Size: " + files[0].size + " bytes");
-
-        const fileToRead = files[0];
-
-        const fileReader = new FileReader();
-        fileReader.onload = (e) => {
-            this.onFileLoad(e);
-        }
-
-        fileReader.readAsText(fileToRead, "UTF-8");
-    }
 
     console.log("onFileSelect end this.multi: "+ this.multi + " "+ this.plop);
 

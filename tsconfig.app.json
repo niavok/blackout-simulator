@@ -6,7 +6,8 @@
   },
   "files": [
     "src/main.ts",
-    "src/polyfills.ts"
+    "src/polyfills.ts",
+    "src/app/simulator/tools/csv-reader.ts"
   ],
   "include": [
     "src/**/*.d.ts"
