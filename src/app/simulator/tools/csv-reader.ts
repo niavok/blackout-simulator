@@ -1,19 +1,26 @@
 
+
 export enum CsvFormat {
     ENTSOE,
     BS
 }
 
+export class CsvContent {
+    header : string[];
+    data : string[][];
+}
+
 export class CsvReader {
 
-    onFileParsedCallback : ({}) => void;
+    onFileParsedCallback : (CsvContent) => void;
 
-    constructor(callback : ({}) => void)
+    constructor(callback : (CsvContent) => void)
     {
         this.onFileParsedCallback = callback;
     }
 
-    ReadFromUrl(url: URL, format: CsvFormat) {
+    ReadFromUrl(url: URL, format: CsvFormat) : boolean {
+        return false;
     }
 
     ReadFromFile(input: HTMLInputElement, format: CsvFormat) : boolean {
@@ -58,7 +65,7 @@ export class CsvReader {
     ParseENTSOEFile(text) : void {
         const lines = text.split('\n');
 
-        var result = {};
+        var result = new CsvContent();
 
         if(lines.length  == 0)
         {
@@ -68,10 +75,9 @@ export class CsvReader {
 
         var header = this.SplitLineENTSOE(lines[0])
 
-        result['header'] = header;
-        result['data'] = [];
+        result.header = header;
 
-        var data = result['data'];
+        var data = result.data;
 
         var minColumnCount = header.length;
         var maxColumnCount = header.length;

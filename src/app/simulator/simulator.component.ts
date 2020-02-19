@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { CsvReader, CsvFormat } from "./tools/csv-reader"
+import { CsvReader, CsvFormat, CsvContent } from "./tools/csv-reader"
+import { CsvParser } from "./tools/csv-parser"
 
 @Component({
   selector: 'app-simulator',
@@ -50,7 +51,7 @@ export class SimulatorComponent implements OnInit {
     ];
     console.log("constructor this.multi: "+ this.multi);
     this.plop = 12;
-    this.actualProductionCsvReader = new CsvReader(this.onActualProductionCsvLoaded);
+    this.actualProductionCsvReader = new CsvReader(this.onActualGenerarationPerProductionCsvLoaded);
 
   }
 
@@ -75,11 +76,14 @@ export class SimulatorComponent implements OnInit {
   }
 
 
-  onActualProductionCsvLoaded(csv : {}) : void
+  onActualGenerarationPerProductionCsvLoaded(csv : CsvContent) : void
   {
-    console.log("onActualProductionCsvLoaded");
+    console.log("onActualGenerarationPerProductionCsvLoaded");
     console.log("header: "+csv["header"]);
     console.log("data: "+csv["data"]);
+
+    var parser: CsvParser;
+    parser.ParseGenerationPerProduction(csv);
 
   }
 

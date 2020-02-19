@@ -17,6 +17,7 @@ A graph library, optimize for large dataset
 
 
 
+
 Features
 --------
 
@@ -25,3 +26,7 @@ Features
 - Compute Co2
 - configure prediction range
 
+Detail to handle
+----------------
+
+- cogeneration
