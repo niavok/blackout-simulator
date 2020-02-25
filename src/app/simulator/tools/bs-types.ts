@@ -50,9 +50,12 @@ export class GenerationPerProduction {
     constructor(duration: number) {
         this.productionByType = new Array<Array<number>>(BsProductionType._Lenght);
 
-        for(let production of this.productionByType)
-        {
-            production = new Array<number>(duration);
+        console.warn("constructor this.productionByType.length="+ this.productionByType.length);
+        console.warn("duration="+ duration);
+
+        for(var i: number = 0; i < this.productionByType.length; i++) {
+            //this.productionByType[i] = new Array<number>(duration);
+            this.productionByType[i] = [];
         }
     }
 
@@ -68,4 +71,10 @@ export class GenerationPerProduction {
 
         this.productionByType[productionType][time] = productionValue;
     }
+}
+
+export class ProductionValue {
+    isValid : boolean = false;
+    isEnd : boolean = false;
+    production : number;
 }

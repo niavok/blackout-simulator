@@ -80,9 +80,8 @@ export class SimulatorComponent implements OnInit {
   {
     console.log("onActualGenerarationPerProductionCsvLoaded");
     console.log("header: "+csv["header"]);
-    console.log("data: "+csv["data"]);
 
-    var parser: CsvParser;
+    var parser = new CsvParser();
     parser.ParseGenerationPerProduction(csv);
 
   }

@@ -8,6 +8,11 @@ export enum CsvFormat {
 export class CsvContent {
     header : string[];
     data : string[][];
+
+    constructor() {
+        this.header = [];
+        this.data = [];
+    }
 }
 
 export class CsvReader {
