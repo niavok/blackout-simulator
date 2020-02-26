@@ -1,3 +1,5 @@
+import { assertNotNull } from '@angular/compiler/src/output/output_ast';
+
 export enum BsProductionType {
     Biomass,
     FossilBrownCoal,
@@ -42,25 +44,84 @@ export enum BsProductionSource {
     Fossil,
 }
 
-export class GenerationPerProduction {
+export class BsGenerationPerProductionType {
 
     usedProductionTypes :BsProductionType[];
     productionByType : Array<Array<number>>;
+    productionMinByType : number[];
+    productionMaxByType : number[];
+    productionSumByType : number[];
+    productionAverageByType : number[];
+    productionSDByType : number[];
+    duration : number;
 
-    constructor(duration: number) {
+    constructor() {
         this.productionByType = new Array<Array<number>>(BsProductionType._Lenght);
+        this.duration = 0;
+        this.usedProductionTypes = [];
+        this.productionMinByType = [];
+        this.productionMaxByType = [];
+        this.productionSumByType = [];
+        this.productionAverageByType = [];
+        this.productionSDByType = [];
 
-        console.warn("constructor this.productionByType.length="+ this.productionByType.length);
-        console.warn("duration="+ duration);
-
-        for(var i: number = 0; i < this.productionByType.length; i++) {
-            //this.productionByType[i] = new Array<number>(duration);
+        for(let i: number = 0; i < this.productionByType.length; i++) {
             this.productionByType[i] = [];
         }
     }
 
-    GetUsedProductionTypes() : BsProductionType[] {
-        return this.usedProductionTypes;
+    Compile() {
+        if(this.usedProductionTypes.length != 0)
+        {
+            console.error("BsGenerationPerProductionType::Compile: usedProductionTypes should be empty");
+            this.usedProductionTypes = [];
+        }
+
+        for(let productionType: number = 0; productionType < BsProductionType._Lenght; productionType++) {
+            let production = this.productionByType[productionType];
+            if(production.length > 0)
+            {
+                let productionMin = Number.POSITIVE_INFINITY;
+                let productionMax = Number.NEGATIVE_INFINITY;
+                let productionSum = 0;
+
+                for (const productionValue of production) {
+                    productionMin = Math.min(productionMin, productionValue);
+                    productionMax = Math.max(productionMax, productionValue);
+                    productionSum += productionValue;
+                }
+
+                if(productionMax != 0 || productionMin != 0)
+                {
+                    this.usedProductionTypes.push(productionType);
+
+                    this.productionMinByType[productionType] = productionMin;
+                    this.productionMaxByType[productionType] = productionMax;
+                    this.productionSumByType[productionType] = productionSum;
+                    let productionAverage = productionSum / production.length
+                    this.productionAverageByType[productionType] = productionAverage;
+
+                    let productionSumErrorSq = 0;
+                    for (const productionValue of production) {
+                        productionSumErrorSq += (productionAverage - productionValue) * (productionAverage - productionValue);
+                    }
+
+                    let productionVariance = productionSumErrorSq / production.length;
+                    let productionSD = Math.sqrt(productionVariance);
+                    this.productionSDByType[productionType] = productionSD;
+                }
+
+                if(this.duration > 0 && this.duration != production.length)
+                {
+                    console.error("BsGenerationPerProductionType::Compile: Production duration for "+GetBsProductionTypeLabel(productionType)+" is "+production.length+" but duration is " + this.duration);
+                    this.duration = Math.min(production.length, this.duration);
+                }
+                else
+                {
+                    this.duration = production.length;
+                }
+            }
+        }
     }
 
     SetProduction(time : number, productionType : BsProductionType, productionValue: number) : void {
@@ -73,8 +134,57 @@ export class GenerationPerProduction {
     }
 }
 
-export class ProductionValue {
+export class BsProductionValue {
     isValid : boolean = false;
     isEnd : boolean = false;
     production : number;
+}
+
+export function GetBsProductionTypeLabel(type: BsProductionType) : string
+{
+    switch(type)
+    {
+        case BsProductionType.Biomass:
+            return "Biomass";
+        case BsProductionType.FossilBrownCoal:
+            return "Brown coal";
+        case BsProductionType.FossilCoalDerivedGas:
+            return "Coal derived gas";
+        case BsProductionType.FossilGas:
+            return "Gas";
+        case BsProductionType.FossilHardCoal:
+            return "Hard coal";
+        case BsProductionType.FossilOil:
+            return "Oil";
+        case BsProductionType.FossilOilShale:
+            return "Oil shale";
+        case BsProductionType.FossilPeat:
+            return "Peat";
+        case BsProductionType.Geothermal:
+            return "Geothermal";
+        case BsProductionType.HydroPumpedStorage:
+            return "Hydro pumped storage";
+        case BsProductionType.HydroRunOfRiverAndPondage:
+            return "Hydro run of river and pondage";
+        case BsProductionType.HydroWaterReservoir:
+            return "Hydro water reservoir";
+        case BsProductionType.Marine:
+            return "Marine";
+        case BsProductionType.Nuclear:
+            return "Nuclear";
+        case BsProductionType.Other:
+            return "Other";
+        case BsProductionType.OtherRenewable:
+            return "Other renewable";
+        case BsProductionType.Solar:
+            return "Solar";
+        case BsProductionType.Waste:
+            return "Waste";
+        case BsProductionType.WindOffshore:
+            return "Wind offshore";
+        case BsProductionType.WindOnshore:
+            return "Wind Onshore";
+        default:
+            return "Invalid production type";
+    }
 }

@@ -1,17 +1,17 @@
-import { GenerationPerProduction, BsProductionType, ProductionValue } from "./bs-types"
+import { BsGenerationPerProductionType, BsProductionType, BsProductionValue, GetBsProductionTypeLabel } from "./bs-types"
 import { CsvContent } from "./csv-reader"
 
 
 export class CsvParser {
 
 
-    ParseGenerationPerProduction(csv: CsvContent) : GenerationPerProduction {
+    ParseGenerationPerProduction(csv: CsvContent) : BsGenerationPerProductionType {
 
         console.log("ParseGenerationPerProduction");
         console.log("header: "+csv.header);
 
         let data = csv.data;
-        let production = new GenerationPerProduction(data.length);
+        let production = new BsGenerationPerProductionType();
 
 
         //var productionTypesColumns : BsProductionType[];
@@ -42,6 +42,10 @@ export class CsvParser {
         {
             let dataEntry = data[dataIndex];
 
+            let isEnd :boolean = true;
+
+            let productionValues = [];
+
             for(let productionType = 0; productionType < BsProductionType._Lenght ; productionType++)
             {
                 let columnIndex = productionTypesColumns[productionType];
@@ -50,15 +54,25 @@ export class CsvParser {
                     continue;
                 }
 
-                let productionValue : ProductionValue;
+                let productionValue : BsProductionValue;
                 productionValue = this.ParseProductionValue(dataEntry[columnIndex]);
 
-                if(productionValue.isEnd)
+                if(!productionValue.isEnd)
                 {
-                    // Force end parsing
-                    dataIndex = data.length;
-                    break;
+                    isEnd = false;
                 }
+
+                productionValues[productionType] = productionValue;
+            }
+
+            if(isEnd)
+            {
+                break;
+            }
+
+            for(let productionType = 0; productionType < BsProductionType._Lenght ; productionType++)
+            {
+                let productionValue = productionValues[productionType];
 
                 if(productionValue.isValid)
                 {
@@ -66,8 +80,21 @@ export class CsvParser {
                     {
                         // Generate missing data
                         let missingValueCount = dataIndex - lastValidDataIndex[productionType] - 1;
-                        console.warn("Repair " + missingValueCount + " values for " +productionType+ " at "+ dataIndex + "("+productionValue.production+")");
+                        console.warn("Repair " + missingValueCount + " values for " +GetBsProductionTypeLabel(productionType)+ " at "+ dataIndex + "("+productionValue.production+")");
 
+                        let initialProduction : number = lastValidDataProduction[productionType];
+                        let finalProduction : number = productionValue.production;
+                        let intervalCount : number = missingValueCount + 1;
+                        let deltaProduction : number = (finalProduction - initialProduction) / intervalCount;
+
+                        console.log("repair from " + initialProduction + " to " + finalProduction);
+                        for(let i = 0; i < missingValueCount; i++)
+                        {
+                            let repairIndex = dataIndex - missingValueCount + i;
+                            let repairProduction = Math.round(initialProduction + deltaProduction * (i+1));
+                            production.SetProduction(repairIndex, productionType, repairProduction);
+                            console.log("repair " + repairIndex + " at " + repairProduction);
+                        }
                     }
 
                     production.SetProduction(dataIndex, productionType, productionValue.production);
@@ -77,11 +104,17 @@ export class CsvParser {
                 // TOOD production.GetUsedProductionTypes();
             }
         }
+
+        production.Compile();
+        console.log("Production duration: "+ production.duration);
+        production.usedProductionTypes.forEach(type => {
+            console.log("- " + GetBsProductionTypeLabel(type)+ " min="+production.productionMinByType[type]+ " max="+production.productionMaxByType[type]+ " sum="+production.productionSumByType[type]+" avg="+production.productionAverageByType[type]+ " sd="+production.productionSDByType[type]);
+        });
         return production;
     }
 
-    ParseProductionValue(powerStr : string) : ProductionValue {
-        let value = new ProductionValue();
+    ParseProductionValue(powerStr : string) : BsProductionValue {
+        let value = new BsProductionValue();
 
         if(powerStr == "n/e") {
             return value;
@@ -91,13 +124,11 @@ export class CsvParser {
             return value;
         }
 
+        let power : number;
         if(powerStr == "-") {
             value.isEnd = true;
-            return value;
-        }
-
-        let power : number;
-        if(powerStr == "") {
+            power = 0;
+        } else if(powerStr == "") {
             power = 0;
         }
         else{
