@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CsvReader, CsvFormat, CsvContent } from "./tools/csv-reader"
 import { CsvParser } from "./tools/csv-parser"
-import { BsGenerationPerProductionType, BsTypeUtils } from './tools/bs-types';
+import { BsGenerationPerProductionType, BsInstalledCapacityPerProductionType, BsTypeUtils } from './tools/bs-types';
 
 @Component({
   selector: 'app-simulator',
@@ -37,9 +37,11 @@ export class SimulatorComponent implements OnInit {
   };
 
   actualProductionCsvReader: CsvReader;
+  installedCapacityCsvReader: CsvReader;
 
   constructor() {
     this.actualProductionCsvReader = new CsvReader((csv : CsvContent) => { this.onActualGenerarationPerProductionCsvLoaded(csv);} )
+    this.installedCapacityCsvReader = new CsvReader((csv : CsvContent) => { this.onInstalledCapacityCsvLoaded(csv);} )
   }
 
   ngOnInit(): void {
@@ -61,7 +63,7 @@ export class SimulatorComponent implements OnInit {
   onActualGenerarationPerProductionCsvLoaded(csv : CsvContent) : void
   {
     let parser = new CsvParser();
-    let generation : BsGenerationPerProductionType = parser.ParseGenerationPerProduction(csv);
+    let generation : BsGenerationPerProductionType = parser.ParseGenerationPerProductionType(csv);
     this.multi = [];
 
     for(const generationType of generation.usedProductionTypes) {
@@ -79,7 +81,24 @@ export class SimulatorComponent implements OnInit {
     this.multi = [...this.multi];
   }
 
+  onInstalledCapacityCsvLoaded(csv : CsvContent) : void
+  {
+    let parser = new CsvParser();
+    let installedCapacity : BsInstalledCapacityPerProductionType = parser.ParseInstalledCapacityPerProductionType(csv);
+   
+    console.log(installedCapacity);
+  }
+
+
+
   onFileSelect(input: HTMLInputElement) {
-    this.actualProductionCsvReader.ReadFromFile(input, CsvFormat.ENTSOE);
+    if(input.name == "actual_generation")
+    {
+      this.actualProductionCsvReader.ReadFromFile(input, CsvFormat.ENTSOE);
+    }
+    else if(input.name == "installed_capacity")
+    {
+      this.installedCapacityCsvReader.ReadFromFile(input, CsvFormat.ENTSOE);
+    }
   }
 }

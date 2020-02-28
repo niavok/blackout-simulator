@@ -1,11 +1,10 @@
-import { BsGenerationPerProductionType, BsProductionType, BsProductionValue, BsTypeUtils } from "./bs-types"
+import { BsGenerationPerProductionType, BsProductionType, BsProductionValue, BsTypeUtils, BsInstalledCapacityPerProductionType } from "./bs-types"
 import { CsvContent } from "./csv-reader"
 
 
 export class CsvParser {
 
-
-    ParseGenerationPerProduction(csv: CsvContent) : BsGenerationPerProductionType {
+    ParseGenerationPerProductionType(csv: CsvContent) : BsGenerationPerProductionType {
 
         console.log("ParseGenerationPerProduction");
         console.log("header: "+csv.header);
@@ -13,8 +12,6 @@ export class CsvParser {
         let data = csv.data;
         let production = new BsGenerationPerProductionType();
 
-
-        //var productionTypesColumns : BsProductionType[];
         let productionTypesColumns = new Array<number>(BsProductionType._Lenght);
         let lastValidDataIndex = new Array<number>(BsProductionType._Lenght);
         let lastValidDataProduction = new Array<number>(BsProductionType._Lenght);
@@ -162,4 +159,57 @@ export class CsvParser {
 
         return BsProductionType.Other;
     }
+
+    
+    ParseInstalledCapacityPerProductionType(csv: CsvContent) : BsInstalledCapacityPerProductionType {
+        console.log("ParseInstalledCapacityPerProductionType");
+        console.log("header: "+csv.header);
+
+        let data = csv.data;
+        let installedCapacities = new BsInstalledCapacityPerProductionType();
+
+        for(let dataIndex = 0; dataIndex < data.length ; dataIndex++)
+        {
+            let dataEntry = data[dataIndex];
+
+            if(dataEntry.length != 2) {
+                console.error("invalid installed capacity line format: "+dataEntry);
+                continue;
+            }
+
+            let productionTypeStr = dataEntry[0];
+            let productionValue = this.ParseProductionValue(dataEntry[1]);
+
+            let dataProductionType = BsProductionType._Lenght;
+
+            for(let productionType = 0; productionType < BsProductionType._Lenght ; productionType++)
+            {
+                if(productionTypeStr == BsTypeUtils.GetProductionTypeENTSOELabel(productionType))
+                {
+                    dataProductionType = productionType;
+                    break;
+                }
+            }
+
+            if(dataProductionType != BsProductionType._Lenght)
+            {
+                if(productionValue.isValid && productionValue.production > 0)
+                {
+                    installedCapacities.installedCapacityTypes.push(dataProductionType);
+                    installedCapacities.installedCapacityByType[dataProductionType] = productionValue.production;
+                }
+            }
+            else if(productionTypeStr != "Total Grand capacity")
+            {
+                console.error("invalid installed capacity line values: "+dataEntry);
+            }
+        }
+
+        console.log("Installed capacities: ");
+        installedCapacities.installedCapacityTypes.forEach(type => {
+            console.log("- " + BsTypeUtils.GetProductionTypeLabel(type)+ ": "+installedCapacities.installedCapacityByType[type]+ "MW");
+        });
+        return installedCapacities;
+    }
+
 }

@@ -125,14 +125,20 @@ export class BsGenerationPerProductionType {
     }
 
     SetProduction(time : number, productionType : BsProductionType, productionValue: number) : void {
-        if(productionValue != 0)
-        {
-            // TODO update used without search
-        }
-
         this.productionByType[productionType][time] = productionValue;
     }
 }
+
+export class BsInstalledCapacityPerProductionType {
+    installedCapacityTypes : BsProductionType[];
+    installedCapacityByType : number[];
+
+    constructor() {
+        this.installedCapacityByType = [];
+        this.installedCapacityTypes = [];
+    }
+}
+
 
 export class BsProductionValue {
     isValid : boolean = false;
