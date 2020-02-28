@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CsvReader, CsvFormat, CsvContent } from "./tools/csv-reader"
 import { CsvParser } from "./tools/csv-parser"
-import { BsGenerationPerProductionType, GetBsProductionTypeLabel } from './tools/bs-types';
+import { BsGenerationPerProductionType, BsTypeUtils } from './tools/bs-types';
 
 @Component({
   selector: 'app-simulator',
@@ -73,7 +73,7 @@ export class SimulatorComponent implements OnInit {
         productionFormated.push({name: i, value: production[i]});
       }
 
-      this.multi.push({name: GetBsProductionTypeLabel(generationType), series: productionFormated});
+      this.multi.push({name: BsTypeUtils.GetProductionTypeLabel(generationType), series: productionFormated});
     }
 
     this.multi = [...this.multi];

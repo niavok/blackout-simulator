@@ -1,4 +1,4 @@
-import { BsGenerationPerProductionType, BsProductionType, BsProductionValue, GetBsProductionTypeLabel } from "./bs-types"
+import { BsGenerationPerProductionType, BsProductionType, BsProductionValue, BsTypeUtils } from "./bs-types"
 import { CsvContent } from "./csv-reader"
 
 
@@ -80,7 +80,7 @@ export class CsvParser {
                     {
                         // Generate missing data
                         let missingValueCount = dataIndex - lastValidDataIndex[productionType] - 1;
-                        console.warn("Repair " + missingValueCount + " values for " +GetBsProductionTypeLabel(productionType)+ " at "+ dataIndex + "("+productionValue.production+")");
+                        console.warn("Repair " + missingValueCount + " values for " +BsTypeUtils.GetProductionTypeLabel(productionType)+ " at "+ dataIndex + "("+productionValue.production+")");
 
                         let initialProduction : number = lastValidDataProduction[productionType];
                         let finalProduction : number = productionValue.production;
@@ -108,7 +108,7 @@ export class CsvParser {
         production.Compile();
         console.log("Production duration: "+ production.duration);
         production.usedProductionTypes.forEach(type => {
-            console.log("- " + GetBsProductionTypeLabel(type)+ " min="+production.productionMinByType[type]+ " max="+production.productionMaxByType[type]+ " sum="+production.productionSumByType[type]+" avg="+production.productionAverageByType[type]+ " sd="+production.productionSDByType[type]);
+            console.log("- " + BsTypeUtils.GetProductionTypeLabel(type)+ " min="+production.productionMinByType[type]+ " max="+production.productionMaxByType[type]+ " sum="+production.productionSumByType[type]+" avg="+production.productionAverageByType[type]+ " sd="+production.productionSDByType[type]);
         });
         return production;
     }
@@ -146,70 +146,16 @@ export class CsvParser {
     }
 
     ParseActualGenerationProductionType(typeStr : string) : BsProductionType {
-        if (typeStr == "Biomass  - Actual Aggregated [MW]" ) {
-            return BsProductionType.Biomass;
-        }
-        if (typeStr == "Fossil Brown coal/Lignite  - Actual Aggregated [MW]") {
-            return BsProductionType.FossilBrownCoal;
-        }
-        if (typeStr == "Fossil Coal-derived gas  - Actual Aggregated [MW]" ) {
-            return BsProductionType.FossilCoalDerivedGas;
-        }
-        if (typeStr == "Fossil Gas  - Actual Aggregated [MW]" ) {
-            return BsProductionType.FossilGas;
-        }
-        if (typeStr == "Fossil Hard coal  - Actual Aggregated [MW]" ) {
-            return BsProductionType.FossilHardCoal;
-        }
-        if (typeStr == "Fossil Oil  - Actual Aggregated [MW]" ) {
-            return BsProductionType.FossilOil;
-        }
-        if (typeStr == "Fossil Oil shale  - Actual Aggregated [MW]" ) {
-            return BsProductionType.FossilOilShale;
-        }
-        if (typeStr == "Fossil Peat  - Actual Aggregated [MW]" ) {
-            return BsProductionType.FossilPeat;
-        }
-        if (typeStr == "Geothermal  - Actual Aggregated [MW]" ) {
-            return BsProductionType.Geothermal;
-        }
-        if (typeStr == "Hydro Pumped Storage  - Actual Aggregated [MW]" ) {
-            return BsProductionType.HydroPumpedStorage;
-        }
-        if (typeStr == "Hydro Run-of-river and poundage  - Actual Aggregated [MW]" ) {
-            return BsProductionType.HydroRunOfRiverAndPondage;
-        }
-        if (typeStr == "Hydro Water Reservoir  - Actual Aggregated [MW]" ) {
-            return BsProductionType.HydroWaterReservoir;
-        }
-        if (typeStr == "Marine  - Actual Aggregated [MW]" ) {
-            return BsProductionType.Marine;
-        }
-        if (typeStr == "Nuclear  - Actual Aggregated [MW]" ) {
-            return BsProductionType.Nuclear;
-        }
-        if (typeStr == "Other  - Actual Aggregated [MW]" ) {
-            return BsProductionType.Other;
-        }
-        if (typeStr == "Other renewable  - Actual Aggregated [MW]" ) {
-            return BsProductionType.OtherRenewable;
-        }
-        if (typeStr == "Solar  - Actual Aggregated [MW]" ) {
-            return BsProductionType.Solar;
-        }
-        if (typeStr == "Waste  - Actual Aggregated [MW]" ) {
-            return BsProductionType.Waste;
-        }
-        if (typeStr == "Wind Offshore  - Actual Aggregated [MW]" ) {
-            return BsProductionType.WindOffshore;
-        }
-        if (typeStr == "Wind Onshore  - Actual Aggregated [MW]" ) {
-            return BsProductionType.WindOnshore;
-        }
-
         if (typeStr == "Hydro Pumped Storage  - Actual Consumption [MW]" ) {
             // Not production, ignore
             return BsProductionType._Lenght;
+        }
+
+        for(let productionType=0; productionType < BsProductionType._Lenght; productionType++) {
+            if(typeStr == BsTypeUtils.GetProductionTypeENTSOELabel(productionType) + "  - Actual Aggregated [MW]")
+            {
+                return productionType;
+            }
         }
 
         console.warn("Failed to parse production type: " + typeStr+ ". 'Other' type will be used ")

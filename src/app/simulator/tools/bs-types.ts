@@ -113,7 +113,7 @@ export class BsGenerationPerProductionType {
 
                 if(this.duration > 0 && this.duration != production.length)
                 {
-                    console.error("BsGenerationPerProductionType::Compile: Production duration for "+GetBsProductionTypeLabel(productionType)+" is "+production.length+" but duration is " + this.duration);
+                    console.error("BsGenerationPerProductionType::Compile: Production duration for "+BsTypeUtils.GetProductionTypeLabel(productionType)+" is "+production.length+" but duration is " + this.duration);
                     this.duration = Math.min(production.length, this.duration);
                 }
                 else
@@ -140,51 +140,103 @@ export class BsProductionValue {
     production : number;
 }
 
-export function GetBsProductionTypeLabel(type: BsProductionType) : string
-{
-    switch(type)
-    {
-        case BsProductionType.Biomass:
-            return "Biomass";
-        case BsProductionType.FossilBrownCoal:
-            return "Brown coal";
-        case BsProductionType.FossilCoalDerivedGas:
-            return "Coal derived gas";
-        case BsProductionType.FossilGas:
-            return "Gas";
-        case BsProductionType.FossilHardCoal:
-            return "Hard coal";
-        case BsProductionType.FossilOil:
-            return "Oil";
-        case BsProductionType.FossilOilShale:
-            return "Oil shale";
-        case BsProductionType.FossilPeat:
-            return "Peat";
-        case BsProductionType.Geothermal:
-            return "Geothermal";
-        case BsProductionType.HydroPumpedStorage:
-            return "Hydro pumped storage";
-        case BsProductionType.HydroRunOfRiverAndPondage:
-            return "Hydro run of river and pondage";
-        case BsProductionType.HydroWaterReservoir:
-            return "Hydro water reservoir";
-        case BsProductionType.Marine:
-            return "Marine";
-        case BsProductionType.Nuclear:
-            return "Nuclear";
-        case BsProductionType.Other:
-            return "Other";
-        case BsProductionType.OtherRenewable:
-            return "Other renewable";
-        case BsProductionType.Solar:
-            return "Solar";
-        case BsProductionType.Waste:
-            return "Waste";
-        case BsProductionType.WindOffshore:
-            return "Wind offshore";
-        case BsProductionType.WindOnshore:
-            return "Wind Onshore";
-        default:
-            return "Invalid production type";
+export class BsTypeUtils {
+
+    static GetProductionTypeLabel(type: BsProductionType) : string {
+        switch(type)
+        {
+            case BsProductionType.Biomass:
+                return "Biomass";
+            case BsProductionType.FossilBrownCoal:
+                return "Brown coal";
+            case BsProductionType.FossilCoalDerivedGas:
+                return "Coal derived gas";
+            case BsProductionType.FossilGas:
+                return "Gas";
+            case BsProductionType.FossilHardCoal:
+                return "Hard coal";
+            case BsProductionType.FossilOil:
+                return "Oil";
+            case BsProductionType.FossilOilShale:
+                return "Oil shale";
+            case BsProductionType.FossilPeat:
+                return "Peat";
+            case BsProductionType.Geothermal:
+                return "Geothermal";
+            case BsProductionType.HydroPumpedStorage:
+                return "Hydro pumped storage";
+            case BsProductionType.HydroRunOfRiverAndPondage:
+                return "Hydro run-of-river and poundage";
+            case BsProductionType.HydroWaterReservoir:
+                return "Hydro water reservoir";
+            case BsProductionType.Marine:
+                return "Marine";
+            case BsProductionType.Nuclear:
+                return "Nuclear";
+            case BsProductionType.Other:
+                return "Other";
+            case BsProductionType.OtherRenewable:
+                return "Other renewable";
+            case BsProductionType.Solar:
+                return "Solar";
+            case BsProductionType.Waste:
+                return "Waste";
+            case BsProductionType.WindOffshore:
+                return "Wind offshore";
+            case BsProductionType.WindOnshore:
+                return "Wind onshore";
+            default:
+                return "Invalid production type";
+        }
     }
+
+    static GetProductionTypeENTSOELabel(type: BsProductionType) : string {
+        switch(type)
+        {
+            case BsProductionType.Biomass:
+                return "Biomass";
+            case BsProductionType.FossilBrownCoal:
+                return "Fossil Brown coal/Lignite";
+            case BsProductionType.FossilCoalDerivedGas:
+                return "Fossil Coal-derived gas";
+            case BsProductionType.FossilGas:
+                return "Fossil Gas";
+            case BsProductionType.FossilHardCoal:
+                return "Fossil Hard coal";
+            case BsProductionType.FossilOil:
+                return "Fossil Oil";
+            case BsProductionType.FossilOilShale:
+                return "Fossil Oil shale";
+            case BsProductionType.FossilPeat:
+                return "Fossil Peat";
+            case BsProductionType.Geothermal:
+                return "Geothermal";
+            case BsProductionType.HydroPumpedStorage:
+                return "Hydro Pumped Storage";
+            case BsProductionType.HydroRunOfRiverAndPondage:
+                return "Hydro Run-of-river and poundage";
+            case BsProductionType.HydroWaterReservoir:
+                return "Hydro Water Reservoir";
+            case BsProductionType.Marine:
+                return "Marine";
+            case BsProductionType.Nuclear:
+                return "Nuclear";
+            case BsProductionType.Other:
+                return "Other";
+            case BsProductionType.OtherRenewable:
+                return "Other renewable";
+            case BsProductionType.Solar:
+                return "Solar";
+            case BsProductionType.Waste:
+                return "Waste";
+            case BsProductionType.WindOffshore:
+                return "Wind Offshore";
+            case BsProductionType.WindOnshore:
+                return "Wind Onshore";
+            default:
+                console.error("GetProductionTypeENTSOELabel - Invalid production type: "+type);
+                return "Invalid production type";
+        }
+    }
+
 }
