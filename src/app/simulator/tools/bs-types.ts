@@ -139,6 +139,14 @@ export class BsInstalledCapacityPerProductionType {
     }
 }
 
+export class BsLoad {
+    load : number[];
+
+    constructor() {
+        this.load = [];
+    }
+}
+
 
 export class BsProductionValue {
     isValid : boolean = false;

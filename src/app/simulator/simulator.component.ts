@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CsvReader, CsvFormat, CsvContent } from "./tools/csv-reader"
 import { CsvParser } from "./tools/csv-parser"
-import { BsGenerationPerProductionType, BsInstalledCapacityPerProductionType, BsTypeUtils } from './tools/bs-types';
+import { BsGenerationPerProductionType, BsInstalledCapacityPerProductionType, BsTypeUtils, BsLoad } from './tools/bs-types';
 
 @Component({
   selector: 'app-simulator',
@@ -12,8 +12,7 @@ export class SimulatorComponent implements OnInit {
 
   multi: any[];
   view: any[];
-
-
+  
   // options
   legend: boolean = true;
   showLabels: boolean = true;
@@ -25,6 +24,16 @@ export class SimulatorComponent implements OnInit {
   xAxisLabel: string = 'Date';
   yAxisLabel: string = 'Production (MW)';
   timeline: boolean = true;
+
+
+  load_chart_data: any[];
+  load_chart_view: any[];
+  load_chart_xAxis: boolean = true;
+  load_chart_yAxis: boolean = true;
+  load_chart_showYAxisLabel: boolean = true;
+  load_chart_showXAxisLabel: boolean = true;
+  load_chart_xAxisLabel: string = 'Date';
+  load_chart_yAxisLabel: string = 'Load (MW)';
 
   csvContent: string;
 
@@ -38,10 +47,12 @@ export class SimulatorComponent implements OnInit {
 
   actualProductionCsvReader: CsvReader;
   installedCapacityCsvReader: CsvReader;
+  totalLoadCsvReader: CsvReader;
 
   constructor() {
     this.actualProductionCsvReader = new CsvReader((csv : CsvContent) => { this.onActualGenerarationPerProductionCsvLoaded(csv);} )
     this.installedCapacityCsvReader = new CsvReader((csv : CsvContent) => { this.onInstalledCapacityCsvLoaded(csv);} )
+    this.totalLoadCsvReader = new CsvReader((csv : CsvContent) => { this.onTotalLoadCsvLoaded(csv);} )
   }
 
   ngOnInit(): void {
@@ -85,8 +96,26 @@ export class SimulatorComponent implements OnInit {
   {
     let parser = new CsvParser();
     let installedCapacity : BsInstalledCapacityPerProductionType = parser.ParseInstalledCapacityPerProductionType(csv);
-   
+
     console.log(installedCapacity);
+  }
+  
+  onTotalLoadCsvLoaded(csv : CsvContent) : void
+  {
+    let parser = new CsvParser();
+    let load : BsLoad = parser.ParseLoad(csv);
+
+    this.load_chart_data = [];
+
+    let loadFromated = [];
+    for(let i = 0; i< load.load.length; i++ )
+    {
+      loadFromated.push({name: i, value: load.load[i]});
+    }
+
+    this.load_chart_data.push({name: "Load", series: loadFromated});
+
+    this.load_chart_data = [...this.load_chart_data];
   }
 
 
@@ -99,6 +128,10 @@ export class SimulatorComponent implements OnInit {
     else if(input.name == "installed_capacity")
     {
       this.installedCapacityCsvReader.ReadFromFile(input, CsvFormat.ENTSOE);
+    }
+    else if(input.name == "total_load")
+    {
+      this.totalLoadCsvReader.ReadFromFile(input, CsvFormat.ENTSOE);
     }
   }
 }

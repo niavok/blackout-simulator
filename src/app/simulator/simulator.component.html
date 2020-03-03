@@ -6,12 +6,15 @@
 <div class="form-group">
     Installed capacity: <input type="file" (change)="onFileSelect($event.target)" name="installed_capacity">
 </div>
+<div class="form-group">
+  Total load: <input type="file" (change)="onFileSelect($event.target)" name="total_load">
+</div>
 
 <style>
 .chart-wrapper {
     /*display: flex;*/
     /*overflow: hidden;*/
-    height: 50vh;
+    height: 25vh;
 }
 </style>
 
@@ -36,5 +39,26 @@
   (deactivate)="onDeactivate($event)"
   >
 </ngx-charts-line-chart>
+
+<div class="chart-wrapper">
+  <ngx-charts-line-chart
+    [view]="load_chart_view"
+    [scheme]="colorScheme"
+    [legend]="legend"
+    [showXAxisLabel]="load_chart_showXAxisLabel"
+    [showYAxisLabel]="load_chart_showYAxisLabel"
+    [xAxis]="load_chart_xAxis"
+    [yAxis]="load_chart_yAxis"
+    [xAxisLabel]="load_chart_xAxisLabel"
+    [yAxisLabel]="load_chart_yAxisLabel"
+    [timeline]="timeline"
+    [results]="load_chart_data"
+    [animations]="false"
+    (select)="onSelect($event)"
+    (activate)="onActivate($event)"
+    (deactivate)="onDeactivate($event)"
+    >
+  </ngx-charts-line-chart>
+
 </div>
 plop2

@@ -1,4 +1,11 @@
-import { BsGenerationPerProductionType, BsProductionType, BsProductionValue, BsTypeUtils, BsInstalledCapacityPerProductionType } from "./bs-types"
+import { 
+    BsGenerationPerProductionType,
+    BsProductionType,
+    BsProductionValue,
+    BsTypeUtils,
+    BsInstalledCapacityPerProductionType,
+    BsLoad,
+ } from "./bs-types"
 import { CsvContent } from "./csv-reader"
 
 
@@ -160,7 +167,6 @@ export class CsvParser {
         return BsProductionType.Other;
     }
 
-    
     ParseInstalledCapacityPerProductionType(csv: CsvContent) : BsInstalledCapacityPerProductionType {
         console.log("ParseInstalledCapacityPerProductionType");
         console.log("header: "+csv.header);
@@ -210,6 +216,37 @@ export class CsvParser {
             console.log("- " + BsTypeUtils.GetProductionTypeLabel(type)+ ": "+installedCapacities.installedCapacityByType[type]+ "MW");
         });
         return installedCapacities;
+    }
+
+    ParseLoad(csv: CsvContent) : BsLoad {
+        console.log("ParseLoad");
+        console.log("header: "+csv.header);
+
+        let data = csv.data;
+        let load = new BsLoad();
+
+        for(let dataIndex = 0; dataIndex < data.length ; dataIndex++)
+        {
+            let dataEntry = data[dataIndex];
+
+            if(dataEntry.length != 3) {
+                console.error("invalid load line format: "+dataEntry);
+                continue;
+            }
+
+            let loadValue = this.ParseProductionValue(dataEntry[2]);
+
+            if(loadValue.isEnd)
+            {
+                break;
+            }
+
+            if(loadValue.isValid)
+            {
+                load.load.push(loadValue.production);
+            }
+        }
+        return load;
     }
 
 }
