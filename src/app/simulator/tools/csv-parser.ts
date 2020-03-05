@@ -99,6 +99,8 @@ export class CsvParser {
                             production.SetProduction(repairIndex, productionType, repairProduction);
                             console.log("repair " + repairIndex + " at " + repairProduction);
                         }
+
+                        production.repairCount+=missingValueCount;
                     }
 
                     production.SetProduction(dataIndex, productionType, productionValue.production);
@@ -110,7 +112,7 @@ export class CsvParser {
         }
 
         production.Compile();
-        console.log("Production duration: "+ production.duration);
+        console.log("Production duration: "+ production.duration+ " samples ("+production.repairCount+" repaired)");
         production.usedProductionTypes.forEach(type => {
             console.log("- " + BsTypeUtils.GetProductionTypeLabel(type)+ " min="+production.productionMinByType[type]+ " max="+production.productionMaxByType[type]+ " sum="+production.productionSumByType[type]+" avg="+production.productionAverageByType[type]+ " sd="+production.productionSDByType[type]);
         });
@@ -225,6 +227,9 @@ export class CsvParser {
         let data = csv.data;
         let load = new BsLoad();
 
+        let lastValidDataIndex = -1;
+        let lastValidDataLoad = 0;
+
         for(let dataIndex = 0; dataIndex < data.length ; dataIndex++)
         {
             let dataEntry = data[dataIndex];
@@ -243,7 +248,43 @@ export class CsvParser {
 
             if(loadValue.isValid)
             {
+                if(lastValidDataIndex != (dataIndex - 1))
+                {
+                    // Generate missing data
+                    let missingValueCount = dataIndex - lastValidDataIndex - 1;
+                    console.warn("Repair " + missingValueCount + " values at "+ dataIndex);
+
+                    let initialLoad : number = lastValidDataLoad;
+                    let finalLoad : number = loadValue.production;
+                    let intervalCount : number = missingValueCount + 1;
+                    let deltaLoad : number = (finalLoad - initialLoad) / intervalCount;
+
+                    console.log("repair from " + initialLoad + " to " + finalLoad);
+                    for(let i = 0; i < missingValueCount; i++)
+                    {
+                        let repairIndex = dataIndex - missingValueCount + i;
+                        let repairLoad = Math.round(initialLoad + deltaLoad * (i+1));
+                        load.load.push(loadValue.production);
+                        load.repairCount++;
+                        console.log("repair " + repairIndex + " at " + repairLoad);
+                    }
+                }
+
                 load.load.push(loadValue.production);
+                lastValidDataIndex = dataIndex;
+                lastValidDataLoad = loadValue.production;
+            }
+            else
+            {
+                let predictedLoadValue = this.ParseProductionValue(dataEntry[1]);
+                if(predictedLoadValue.isValid)
+                {
+                    load.load.push(predictedLoadValue.production);
+                    load.predictedValueCount++;
+                    lastValidDataIndex = dataIndex;
+                    lastValidDataLoad = loadValue.production;
+                    console.log("use predicted at " + dataIndex+ " ("+load.predictedValueCount+")");
+                }
             }
         }
         return load;

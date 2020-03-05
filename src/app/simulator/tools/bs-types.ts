@@ -54,10 +54,12 @@ export class BsGenerationPerProductionType {
     productionAverageByType : number[];
     productionSDByType : number[];
     duration : number;
+    repairCount : number;
 
     constructor() {
         this.productionByType = new Array<Array<number>>(BsProductionType._Lenght);
         this.duration = 0;
+        this.repairCount = 0;
         this.usedProductionTypes = [];
         this.productionMinByType = [];
         this.productionMaxByType = [];
@@ -141,9 +143,13 @@ export class BsInstalledCapacityPerProductionType {
 
 export class BsLoad {
     load : number[];
+    repairCount : number;
+    predictedValueCount : number;
 
     constructor() {
         this.load = [];
+        this.repairCount = 0;
+        this.predictedValueCount = 0;
     }
 }
 

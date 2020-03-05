@@ -77,6 +77,9 @@ export class SimulatorComponent implements OnInit {
     let generation : BsGenerationPerProductionType = parser.ParseGenerationPerProductionType(csv);
     this.multi = [];
 
+    console.log("Actual generation duration: "+generation.duration);
+
+
     for(const generationType of generation.usedProductionTypes) {
 
       const production = generation.productionByType[generationType];
@@ -107,6 +110,7 @@ export class SimulatorComponent implements OnInit {
 
     this.load_chart_data = [];
 
+    console.log("Load duration: "+load.load.length+ " samples ("+load.predictedValueCount+" using prediction,"+load.repairCount+" repaired)");
     let loadFromated = [];
     for(let i = 0; i< load.load.length; i++ )
     {
