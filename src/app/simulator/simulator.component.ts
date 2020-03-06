@@ -2,12 +2,16 @@ import { Component, OnInit } from '@angular/core';
 import { CsvReader, CsvFormat, CsvContent } from "./tools/csv-reader"
 import { CsvParser } from "./tools/csv-parser"
 import { BsGenerationPerProductionType, BsInstalledCapacityPerProductionType, BsTypeUtils, BsLoad } from './tools/bs-types';
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-simulator',
   templateUrl: './simulator.component.html',
   styleUrls: ['./simulator.component.css']
 })
+
+@Injectable()
 export class SimulatorComponent implements OnInit {
 
   multi: any[];
@@ -49,13 +53,17 @@ export class SimulatorComponent implements OnInit {
   installedCapacityCsvReader: CsvReader;
   totalLoadCsvReader: CsvReader;
 
-  constructor() {
+  constructor(private http: HttpClient) {
     this.actualProductionCsvReader = new CsvReader((csv : CsvContent) => { this.onActualGenerarationPerProductionCsvLoaded(csv);} )
     this.installedCapacityCsvReader = new CsvReader((csv : CsvContent) => { this.onInstalledCapacityCsvLoaded(csv);} )
     this.totalLoadCsvReader = new CsvReader((csv : CsvContent) => { this.onTotalLoadCsvLoaded(csv);} )
   }
 
   ngOnInit(): void {
+    this.http.get('assets/database.json', {responseType: 'text'})
+        .subscribe(data => console.log(data));
+      this.http.get('assets/database/entsoe_germany_2019/installed_capacity.csv', {responseType: 'text'})
+        .subscribe(data => console.log(data));
   }
 
   onSelect(data): void {

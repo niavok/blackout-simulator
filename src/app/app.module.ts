@@ -8,6 +8,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { FaqComponent } from './faq/faq.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
+import { HttpClientModule } from '@angular/common/http';
 
 const appRoutes: Routes = [
   { path: 'simulator', component: SimulatorComponent },
@@ -28,7 +29,8 @@ const appRoutes: Routes = [
     RouterModule.forRoot(
       appRoutes,
       { enableTracing: true, useHash: true}
-    )
+    ),
+    HttpClientModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
