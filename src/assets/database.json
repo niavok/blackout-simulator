@@ -1,0 +1,22 @@
+{
+    "scenarioList": [
+    {
+        "name": "France 2019",
+        "installedCapacityCsv": "database/entsoe_france_2019/actual_generation.csv",
+        "totalLoadCsv": "database/entsoe_france_2019/actual_generation.csv",
+        "actualGenerationCsv": "database/entsoe_france_2019/actual_generation.csv"
+    },
+    {
+        "name": "Germany 2019",
+        "installedCapacityCsv": "database/entsoe_germany_2019/actual_generation.csv",
+        "totalLoadCsv": "database/entsoe_germany_2019/actual_generation.csv",
+        "actualGenerationCsv": "database/entsoe_germany_2019/actual_generation.csv"
+    },
+    {
+        "name": "Spain 2019",
+        "installedCapacityCsv": "database/entsoe_spain_2019/actual_generation.csv",
+        "totalLoadCsv": "database/entsoe_spain_2019/actual_generation.csv",
+        "actualGenerationCsv": "database/entsoe_spain_2019/actual_generation.csv"
+    }
+    ]
+}
