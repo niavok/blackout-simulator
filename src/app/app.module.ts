@@ -9,6 +9,7 @@ import { FaqComponent } from './faq/faq.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { HttpClientModule } from '@angular/common/http';
+import { ReactiveFormsModule } from '@angular/forms';
 
 const appRoutes: Routes = [
   { path: 'simulator', component: SimulatorComponent },
@@ -23,6 +24,7 @@ const appRoutes: Routes = [
   ],
   imports: [
     BrowserModule,
+    ReactiveFormsModule,
     AppRoutingModule,
     NgxChartsModule,
     BrowserAnimationsModule,

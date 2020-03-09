@@ -4,6 +4,8 @@ import { CsvParser } from "./tools/csv-parser"
 import { BsGenerationPerProductionType, BsInstalledCapacityPerProductionType, BsTypeUtils, BsLoad } from './tools/bs-types';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { FormBuilder, FormGroup, FormArray, FormControl, ValidatorFn } from '@angular/forms';
+
 
 @Component({
   selector: 'app-simulator',
@@ -16,7 +18,8 @@ export class SimulatorComponent implements OnInit {
 
   multi: any[];
   view: any[];
-  
+  scenarioDatabase: { scenarioList: any[]};
+
   // options
   legend: boolean = true;
   showLabels: boolean = true;
@@ -39,6 +42,10 @@ export class SimulatorComponent implements OnInit {
   load_chart_xAxisLabel: string = 'Date';
   load_chart_yAxisLabel: string = 'Load (MW)';
 
+  scenarioListForm: FormGroup;
+  scenarioList = [];
+  selectScenario() { console.log(this.scenarioListForm.value);  }
+
   csvContent: string;
 
 
@@ -53,17 +60,42 @@ export class SimulatorComponent implements OnInit {
   installedCapacityCsvReader: CsvReader;
   totalLoadCsvReader: CsvReader;
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private formBuilder: FormBuilder) {
+
+    this.scenarioListForm = this.formBuilder.group({
+      scenarioList: ['']
+    });
+
     this.actualProductionCsvReader = new CsvReader((csv : CsvContent) => { this.onActualGenerarationPerProductionCsvLoaded(csv);} )
     this.installedCapacityCsvReader = new CsvReader((csv : CsvContent) => { this.onInstalledCapacityCsvLoaded(csv);} )
     this.totalLoadCsvReader = new CsvReader((csv : CsvContent) => { this.onTotalLoadCsvLoaded(csv);} )
   }
 
   ngOnInit(): void {
-    this.http.get('assets/database.json', {responseType: 'text'})
-        .subscribe(data => console.log(data));
-      this.http.get('assets/database/entsoe_germany_2019/installed_capacity.csv', {responseType: 'text'})
-        .subscribe(data => console.log(data));
+
+    this.LoadDatabase('assets/database.json');
+
+      //this.http.get('assets/database/entsoe_germany_2019/installed_capacity.csv', {responseType: 'text'})
+//        .subscribe(data => console.log(data));
+  }
+
+  LoadDatabase(url: string): void {
+      this.http.get('assets/database.json', {responseType: 'text'})
+      .subscribe(data => {this.OnDatabaseFileLoad(data);});
+  }
+
+  OnDatabaseFileLoad(data: string)
+  {
+    this.scenarioDatabase = JSON.parse(data);
+    console.log(this.scenarioDatabase);
+    console.log(this.scenarioList);
+    this.scenarioList = [];
+    for(let i = 0; i < this.scenarioDatabase.scenarioList.length; i++)
+    {
+      this.scenarioList.push({id: i, name: this.scenarioDatabase.scenarioList[i].name});
+    }
+
+    console.log(this.scenarioList);
   }
 
   onSelect(data): void {

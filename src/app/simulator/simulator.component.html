@@ -10,6 +10,19 @@
   Total load: <input type="file" (change)="onFileSelect($event.target)" name="total_load">
 </div>
 
+<form [formGroup]="scenarioListForm" (ngSubmit)="selectScenario()">
+  <label for="scenarioList">Scenario</label>
+  <select formControlName="scenarioList" id="orders">
+    <option *ngFor="let scenario of scenarioList; let i = index" [value]="scenario.id">
+      {{scenario.name}}
+    </option>
+  </select>
+
+  <button>Load scenario</button>
+</form>
+
+
+
 <style>
 .chart-wrapper {
     /*display: flex;*/
