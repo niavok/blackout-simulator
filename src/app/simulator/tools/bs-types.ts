@@ -111,16 +111,16 @@ export class BsGenerationPerProductionType {
                     let productionVariance = productionSumErrorSq / production.length;
                     let productionSD = Math.sqrt(productionVariance);
                     this.productionSDByType[productionType] = productionSD;
-                }
 
-                if(this.duration > 0 && this.duration != production.length)
-                {
-                    console.error("BsGenerationPerProductionType::Compile: Production duration for "+BsTypeUtils.GetProductionTypeLabel(productionType)+" is "+production.length+" but duration is " + this.duration);
-                    this.duration = Math.min(production.length, this.duration);
-                }
-                else
-                {
-                    this.duration = production.length;
+                    if(this.duration > 0 && this.duration != production.length)
+                    {
+                        console.error("BsGenerationPerProductionType::Compile: Production duration for "+BsTypeUtils.GetProductionTypeLabel(productionType)+" is "+production.length+" but duration is " + this.duration);
+                        this.duration = Math.min(production.length, this.duration);
+                    }
+                    else
+                    {
+                        this.duration = production.length;
+                    }
                 }
             }
         }

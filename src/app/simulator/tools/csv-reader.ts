@@ -67,6 +67,17 @@ export class CsvReader {
 
     }
 
+    ReadFromText(input: string, format: CsvFormat) : boolean {
+        switch(format)
+        {
+            case CsvFormat.ENTSOE:
+                this.ParseENTSOEFile(input);
+                return true;
+            break;
+        }
+        return false;
+    }
+
     ParseENTSOEFile(text) : void {
         const lines = text.split('\n');
 

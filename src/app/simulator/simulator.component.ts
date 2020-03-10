@@ -44,8 +44,7 @@ export class SimulatorComponent implements OnInit {
 
   scenarioListForm: FormGroup;
   scenarioList = [];
-  selectScenario() { console.log(this.scenarioListForm.value);  }
-
+  
   csvContent: string;
 
 
@@ -96,6 +95,22 @@ export class SimulatorComponent implements OnInit {
     }
 
     console.log(this.scenarioList);
+  }
+
+  OnLoadSelectedScenario() {
+    console.log(this.scenarioListForm.value);
+    let selectedScenarioIndex = this.scenarioListForm.value.scenarioList;
+    let scenario = this.scenarioDatabase.scenarioList[selectedScenarioIndex];
+    console.log(scenario);
+
+    this.http.get("assets/"+scenario.installedCapacityCsv, {responseType: 'text'})
+    .subscribe(data => {this.installedCapacityCsvReader.ReadFromText(data, CsvFormat.ENTSOE);});
+
+    this.http.get("assets/"+scenario.actualGenerationCsv, {responseType: 'text'})
+    .subscribe(data => {this.actualProductionCsvReader.ReadFromText(data, CsvFormat.ENTSOE);});
+
+    this.http.get("assets/"+scenario.totalLoadCsv, {responseType: 'text'})
+    .subscribe(data => {this.totalLoadCsvReader.ReadFromText(data, CsvFormat.ENTSOE);});
   }
 
   onSelect(data): void {

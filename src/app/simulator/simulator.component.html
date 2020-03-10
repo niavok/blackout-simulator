@@ -10,7 +10,7 @@
   Total load: <input type="file" (change)="onFileSelect($event.target)" name="total_load">
 </div>
 
-<form [formGroup]="scenarioListForm" (ngSubmit)="selectScenario()">
+<form [formGroup]="scenarioListForm" (ngSubmit)="OnLoadSelectedScenario()">
   <label for="scenarioList">Scenario</label>
   <select formControlName="scenarioList" id="orders">
     <option *ngFor="let scenario of scenarioList; let i = index" [value]="scenario.id">
