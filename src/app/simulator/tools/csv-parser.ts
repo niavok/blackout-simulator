@@ -49,6 +49,7 @@ export class CsvParser {
             let isEnd :boolean = true;
 
             let productionValues = [];
+            let isEmptyLine = true;
 
             for(let productionType = 0; productionType < BsProductionType._Lenght ; productionType++)
             {
@@ -58,6 +59,10 @@ export class CsvParser {
                     continue;
                 }
 
+                if(dataEntry[columnIndex] != "")
+                {
+                    isEmptyLine = false;
+                }
                 let productionValue : BsProductionValue;
                 productionValue = this.ParseProductionValue(dataEntry[columnIndex]);
 
@@ -67,6 +72,13 @@ export class CsvParser {
                 }
 
                 productionValues[productionType] = productionValue;
+            }
+
+            if(isEmptyLine)
+            {
+                // Empty line problem, don't use at 0 but as invalid
+                console.warn("Empty line at " + dataIndex + ":"+ dataEntry);
+                continue;
             }
 
             if(isEnd)
@@ -97,7 +109,6 @@ export class CsvParser {
                             let repairIndex = dataIndex - missingValueCount + i;
                             let repairProduction = Math.round(initialProduction + deltaProduction * (i+1));
                             production.SetProduction(repairIndex, productionType, repairProduction);
-                            console.log("repair " + repairIndex + " at " + repairProduction);
                         }
 
                         production.repairCount+=missingValueCount;
@@ -107,7 +118,6 @@ export class CsvParser {
                     lastValidDataIndex[productionType] = dataIndex;
                     lastValidDataProduction[productionType] = productionValue.production;
                 }
-                // TOOD production.GetUsedProductionTypes();
             }
         }
 
@@ -235,7 +245,14 @@ export class CsvParser {
             let dataEntry = data[dataIndex];
 
             if(dataEntry.length != 3) {
-                console.error("invalid load line format: "+dataEntry);
+                console.error("invalid load line format at "+dataIndex+": "+dataEntry);
+                continue;
+            }
+
+            if(dataEntry[2] == "" && dataEntry[1] == "")
+            {
+                // Empty line problem, don't use at 0 but as invalid
+                console.warn("Empty line at " + dataIndex + ":"+ dataEntry);
                 continue;
             }
 
@@ -246,28 +263,31 @@ export class CsvParser {
                 break;
             }
 
+            let RepairData = (finalLoad : number) : void => {
+                // Generate missing data
+                let missingValueCount = dataIndex - lastValidDataIndex - 1;
+                console.warn("Repair " + missingValueCount + " values at "+ dataIndex);
+
+                let initialLoad : number = lastValidDataLoad;
+                let intervalCount : number = missingValueCount + 1;
+                let deltaLoad : number = (finalLoad - initialLoad) / intervalCount;
+
+                console.log("repair from " + initialLoad + " to " + finalLoad);
+                for(let i = 0; i < missingValueCount; i++)
+                {
+                    let repairIndex = dataIndex - missingValueCount + i;
+                    let repairLoad = Math.round(initialLoad + deltaLoad * (i+1));
+                    load.load.push(repairLoad);
+                    load.repairCount++;
+                    console.log("repair " + repairIndex + " at " + repairLoad);
+                }
+            }
+
             if(loadValue.isValid)
             {
                 if(lastValidDataIndex != (dataIndex - 1))
                 {
-                    // Generate missing data
-                    let missingValueCount = dataIndex - lastValidDataIndex - 1;
-                    console.warn("Repair " + missingValueCount + " values at "+ dataIndex);
-
-                    let initialLoad : number = lastValidDataLoad;
-                    let finalLoad : number = loadValue.production;
-                    let intervalCount : number = missingValueCount + 1;
-                    let deltaLoad : number = (finalLoad - initialLoad) / intervalCount;
-
-                    console.log("repair from " + initialLoad + " to " + finalLoad);
-                    for(let i = 0; i < missingValueCount; i++)
-                    {
-                        let repairIndex = dataIndex - missingValueCount + i;
-                        let repairLoad = Math.round(initialLoad + deltaLoad * (i+1));
-                        load.load.push(loadValue.production);
-                        load.repairCount++;
-                        console.log("repair " + repairIndex + " at " + repairLoad);
-                    }
+                    RepairData(loadValue.production);
                 }
 
                 load.load.push(loadValue.production);
@@ -279,6 +299,11 @@ export class CsvParser {
                 let predictedLoadValue = this.ParseProductionValue(dataEntry[1]);
                 if(predictedLoadValue.isValid)
                 {
+                    if(lastValidDataIndex != (dataIndex - 1))
+                    {
+                        RepairData(predictedLoadValue.production);
+                    }
+
                     load.load.push(predictedLoadValue.production);
                     load.predictedValueCount++;
                     lastValidDataIndex = dataIndex;
