@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CsvReader, CsvFormat, CsvContent } from "./tools/csv-reader"
 import { CsvParser } from "./tools/csv-parser"
-import { BsGenerationPerProductionType, BsInstalledCapacityPerProductionType, BsTypeUtils, BsLoad } from './tools/bs-types';
+import { BsGenerationPerProductionType, BsInstalledCapacityPerProductionType, BsTypeUtils, BsLoad, BsScenario } from './tools/bs-types';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormBuilder, FormGroup, FormArray, FormControl, ValidatorFn } from '@angular/forms';
@@ -44,9 +44,10 @@ export class SimulatorComponent implements OnInit {
 
   scenarioListForm: FormGroup;
   scenarioList = [];
-  
+
   csvContent: string;
 
+  activeScenario: BsScenario;
 
   private interval: any;
 
@@ -60,6 +61,8 @@ export class SimulatorComponent implements OnInit {
   totalLoadCsvReader: CsvReader;
 
   constructor(private http: HttpClient, private formBuilder: FormBuilder) {
+
+    this.activeScenario = new BsScenario;
 
     this.scenarioListForm = this.formBuilder.group({
       scenarioList: ['']
@@ -130,7 +133,10 @@ export class SimulatorComponent implements OnInit {
   {
     let parser = new CsvParser();
     let generation : BsGenerationPerProductionType = parser.ParseGenerationPerProductionType(csv);
+    this.activeScenario.actualGeneration = generation;
     this.multi = [];
+
+
 
     console.log("Actual generation duration: "+generation.duration);
 
@@ -148,20 +154,25 @@ export class SimulatorComponent implements OnInit {
     }
 
     this.multi = [...this.multi];
+    this.activeScenario.Compile();
   }
 
   onInstalledCapacityCsvLoaded(csv : CsvContent) : void
   {
     let parser = new CsvParser();
     let installedCapacity : BsInstalledCapacityPerProductionType = parser.ParseInstalledCapacityPerProductionType(csv);
+    this.activeScenario.installedCapacities = installedCapacity;
+
 
     console.log(installedCapacity);
+    this.activeScenario.Compile();
   }
   
   onTotalLoadCsvLoaded(csv : CsvContent) : void
   {
     let parser = new CsvParser();
     let load : BsLoad = parser.ParseLoad(csv);
+    this.activeScenario.load = load;
 
     this.load_chart_data = [];
 
@@ -175,6 +186,8 @@ export class SimulatorComponent implements OnInit {
     this.load_chart_data.push({name: "Load", series: loadFromated});
 
     this.load_chart_data = [...this.load_chart_data];
+
+    this.activeScenario.Compile();
   }
 
 

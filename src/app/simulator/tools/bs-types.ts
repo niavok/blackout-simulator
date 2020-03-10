@@ -260,3 +260,23 @@ export class BsTypeUtils {
     }
 
 }
+
+export class BsScenario {
+    installedCapacities : BsInstalledCapacityPerProductionType;
+    load : BsLoad;
+    actualGeneration : BsGenerationPerProductionType;
+
+    IsReady() : boolean
+    {
+        return this.installedCapacities != undefined && this.load != undefined && this.actualGeneration != undefined;
+    }
+
+    Compile() : boolean
+    {
+        if(!this.IsReady())
+        {
+            return false;
+        }
+        console.log("Ready to compile !")
+    }
+}
