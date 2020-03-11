@@ -265,6 +265,10 @@ export class BsScenario {
     installedCapacities : BsInstalledCapacityPerProductionType;
     load : BsLoad;
     actualGeneration : BsGenerationPerProductionType;
+    capacityFactorPerProductionType : Array<Array<number>>;
+    capacityFactorAveragePerProductionType : Array<number>;
+    capacityFactorSDPerProductionType : Array<number>;
+    duration : number;
 
     IsReady() : boolean
     {
@@ -277,6 +281,57 @@ export class BsScenario {
         {
             return false;
         }
-        console.log("Ready to compile !")
+
+
+        this.duration = Math.min(this.load.load.length, this.actualGeneration.duration);
+
+        this.capacityFactorPerProductionType = [];
+        this.capacityFactorAveragePerProductionType = [];
+        this.capacityFactorSDPerProductionType = [];
+
+        this.ComputeCapacityFactor(BsProductionType.Solar);
+        this.ComputeCapacityFactor(BsProductionType.WindOnshore);
+        this.ComputeCapacityFactor(BsProductionType.WindOffshore);
+
+        return true;
+    }
+
+    ComputeCapacityFactor(productionType: BsProductionType)
+    {
+        if(this.installedCapacities.installedCapacityTypes.indexOf(productionType) <0)
+        {
+            // Not present
+            console.log("Skip "+BsTypeUtils.GetProductionTypeLabel(productionType)+" capacity factor : not produced in the initial scenario");
+            return;
+        }
+
+        this.capacityFactorPerProductionType[productionType] = [];
+
+        let installedCapacity = this.installedCapacities.installedCapacityByType[productionType];
+        let capacityFactor = this.capacityFactorPerProductionType[productionType];
+        let actualGeneration = this.actualGeneration.productionByType[productionType];
+
+        let cfSum = 0;
+
+        for(let time = 0; time < this.duration; time++)
+        {
+            let cf = actualGeneration[time] /installedCapacity
+            cfSum+= cf;
+            capacityFactor.push(cf);
+        }
+
+        let cfAverage = cfSum / this.duration;
+        this.capacityFactorAveragePerProductionType[productionType] = cfAverage;
+
+        let cfSumErrorSq = 0;
+        for (const cf of capacityFactor) {
+            cfSumErrorSq += (cfAverage - cf) * (cfAverage - cf);
+        }
+
+        let cfVariance = cfSumErrorSq / this.duration;
+        let cfSD = Math.sqrt(cfVariance);
+        this.capacityFactorSDPerProductionType[productionType] = cfSD;
+
+        console.log(BsTypeUtils.GetProductionTypeLabel(productionType)+ " capacity factor: average="+cfAverage+" SD="+cfSD);
     }
 }

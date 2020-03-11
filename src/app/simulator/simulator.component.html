@@ -74,4 +74,27 @@
   </ngx-charts-line-chart>
 
 </div>
+
+
+<div class="chart-wrapper">
+  <ngx-charts-line-chart
+    [view]="cf_chart_view"
+    [scheme]="colorScheme"
+    [legend]="legend"
+    [showXAxisLabel]="cf_chart_showXAxisLabel"
+    [showYAxisLabel]="cf_chart_showYAxisLabel"
+    [xAxis]="cf_chart_xAxis"
+    [yAxis]="cf_chart_yAxis"
+    [xAxisLabel]="cf_chart_xAxisLabel"
+    [yAxisLabel]="cf_chart_yAxisLabel"
+    [timeline]="timeline"
+    [results]="cf_chart_data"
+    [animations]="false"
+    (select)="onSelect($event)"
+    (activate)="onActivate($event)"
+    (deactivate)="onDeactivate($event)"
+    >
+  </ngx-charts-line-chart>
+
+</div>
 plop2

@@ -15,6 +15,23 @@ Load class
 
 A graph library, optimize for large dataset
 
+hydro plant refill rate
+hydro poundage
+
+hydro run of river capacity factor
+
+model wind offshore if not present
+
+
+power to gaz
+
+interconnection
+
+margin in case of failure
+
+nuclear reloading
+
+cost : CAPEX, OPEX
 
 
 Features

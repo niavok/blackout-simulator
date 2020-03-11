@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CsvReader, CsvFormat, CsvContent } from "./tools/csv-reader"
 import { CsvParser } from "./tools/csv-parser"
-import { BsGenerationPerProductionType, BsInstalledCapacityPerProductionType, BsTypeUtils, BsLoad, BsScenario } from './tools/bs-types';
+import { BsGenerationPerProductionType, BsInstalledCapacityPerProductionType, BsTypeUtils, BsLoad, BsScenario, BsProductionType } from './tools/bs-types';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormBuilder, FormGroup, FormArray, FormControl, ValidatorFn } from '@angular/forms';
@@ -41,6 +41,15 @@ export class SimulatorComponent implements OnInit {
   load_chart_showXAxisLabel: boolean = true;
   load_chart_xAxisLabel: string = 'Date';
   load_chart_yAxisLabel: string = 'Load (MW)';
+
+  cf_chart_data: any[];
+  cf_chart_view: any[];
+  cf_chart_xAxis: boolean = true;
+  cf_chart_yAxis: boolean = true;
+  cf_chart_showYAxisLabel: boolean = true;
+  cf_chart_showXAxisLabel: boolean = true;
+  cf_chart_xAxisLabel: string = 'Date';
+  cf_chart_yAxisLabel: string = 'Capacity factor (%)';
 
   scenarioListForm: FormGroup;
   scenarioList = [];
@@ -154,7 +163,7 @@ export class SimulatorComponent implements OnInit {
     }
 
     this.multi = [...this.multi];
-    this.activeScenario.Compile();
+    this.OnScenarioChanged();
   }
 
   onInstalledCapacityCsvLoaded(csv : CsvContent) : void
@@ -165,9 +174,9 @@ export class SimulatorComponent implements OnInit {
 
 
     console.log(installedCapacity);
-    this.activeScenario.Compile();
+    this.OnScenarioChanged();
   }
-  
+
   onTotalLoadCsvLoaded(csv : CsvContent) : void
   {
     let parser = new CsvParser();
@@ -187,10 +196,41 @@ export class SimulatorComponent implements OnInit {
 
     this.load_chart_data = [...this.load_chart_data];
 
-    this.activeScenario.Compile();
+    this.OnScenarioChanged();
   }
 
 
+  OnScenarioChanged()
+  {
+    this.cf_chart_data =[];
+
+    if(this.activeScenario.Compile())
+    {
+
+      let AddCf = (productionType: BsProductionType)  : void => {
+
+        let cf = this.activeScenario.capacityFactorPerProductionType[productionType];
+
+        if(cf == undefined)
+        {
+          return;
+        }
+
+        let cfFromated = [];
+        for(let time = 0; time< this.activeScenario.duration; time++ )
+        {
+          cfFromated.push({name: time, value: cf[time] * 100});
+        }
+
+        this.cf_chart_data.push({name: BsTypeUtils.GetProductionTypeLabel(productionType), series: cfFromated});
+      }
+
+      AddCf(BsProductionType.Solar);
+      AddCf(BsProductionType.WindOnshore);
+      AddCf(BsProductionType.WindOffshore);
+  }
+    this.cf_chart_data = [...this.cf_chart_data];
+  }
 
   onFileSelect(input: HTMLInputElement) {
     if(input.name == "actual_generation")
